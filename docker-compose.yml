@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  ui:
+    build: ./ui
+    volumes:
+    - ./:/app
+    ports:
+      - "3000:3000"
+  backend:
+    build: ./backend
+    volumes:
+    - ./:/app
+    ports:
+      - "5000:5000"
+  postgres:
+    image: "postgres:13"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: test1234
+      POSTGRES_DB: task-planner
