@@ -1,5 +1,4 @@
 const express = require('express');
-const { ValidationError } = require('sequelize/types');
 const Task = require("../db/Task");
 const ApiError = require('../utils/ApiError');
 const globalErrorHandler = require("../utils/globalErrorHandler");
@@ -18,12 +17,15 @@ router.post('/', globalErrorHandler(async function(req, res, next) {
 }));
 
 router.put('/:id', globalErrorHandler(async function(req, res, next) {
-    const updatedTask = await Task.update(req.body, {
+    const [updatedTaskCounts] = await Task.update(req.body, {
         where: {
             id: req.params.id
         }
     });
-    res.json(updatedTask);
+    if(updatedTaskCounts <= 0) {
+        next(new ApiError(`No task found for the id ${req.params.id}`, 400))
+    }
+    res.json({error: false});
 }));
 
 router.delete('/:id', globalErrorHandler(async function(req, res, next) {
@@ -33,11 +35,10 @@ router.delete('/:id', globalErrorHandler(async function(req, res, next) {
         }
     });
 
-    if(deletedTaskCount > 0) {
-        res.json({error: false});
-    } else {
-        next(new Error(`No task for the id ${req.params.id} found`, 400));
+    if(deletedTaskCount <= 0) {
+        next(new ApiError(`No task found for the id ${req.params.id}`, 400));
     }
+    res.json({error: false});
 }));
 
 module.exports = router;
