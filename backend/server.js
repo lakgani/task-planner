@@ -4,9 +4,10 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require('./app');
 var debug = require('debug')('backend:server');
 var http = require('http');
+const sequelize = require("./db/connection");
 
 /**
  * Get port from environment and store in Express.
@@ -24,10 +25,15 @@ var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+sequelize.sync({
+  // force: true, // Use if need to reset the db
+}).then(() => {
+  server.listen(port);
+  server.on('error', onError);
+  server.on('listening', onListening);
+}).catch(err => {
+  console.log(err);
+})
 
 /**
  * Normalize a port into a number, string, or false.
