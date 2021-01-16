@@ -1,21 +1,15 @@
 const express = require('express');
+const { ValidationError } = require('sequelize/types');
 const Task = require("../db/Task");
+const ApiError = require('../utils/ApiError');
 const globalErrorHandler = require("../utils/globalErrorHandler");
 
 const router = express.Router();
 
 /* GET users listing. */
 router.get('/', globalErrorHandler(async function(req, res, next) {
-    try {
-        const allTasks = await Task.findAll(); 
-        res.json(allTasks);
-        
-    } catch (error) {
-        console.log(error);
-        res.json({
-            error: true
-        })
-    }
+    const allTasks = await Task.findAll(); 
+    res.json(allTasks);
 }));
 
 router.post('/', globalErrorHandler(async function(req, res, next) {
@@ -42,7 +36,7 @@ router.delete('/:id', globalErrorHandler(async function(req, res, next) {
     if(deletedTaskCount > 0) {
         res.json({error: false});
     } else {
-        next(new Error(`No task for the id ${id} found`));
+        next(new Error(`No task for the id ${req.params.id} found`, 400));
     }
 }));
 
